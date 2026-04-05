@@ -1,266 +1,97 @@
-# 📊 TradeSahel – Plateforme d’Intelligence Commerciale (Mali)
+# 🌍 TradeSahel - Intelligence Commerciale pour le Mali
 
-## 🧾 README.md
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Groq](https://img.shields.io/badge/Groq-LLaMA_3.3-orange.svg)](https://groq.com)
+[![SQLite](https://img.shields.io/badge/SQLite-3-blue.svg)](https://sqlite.org)
 
-### 🚀 Présentation
-
-TradeSahel est une application web développée avec Streamlit permettant aux commerçants maliens d’analyser leurs ventes, suivre leurs performances et générer des prévisions grâce à l’intelligence artificielle.
-
----
-
-### 🎯 Objectifs
-
-* Centraliser les données de vente
-* Analyser les performances commerciales
-* Comparer plusieurs points de vente
-* Suivre des objectifs financiers
-* Générer des prévisions avec IA
-* Exporter les données facilement
+**TradeSahel** est une application web d'intelligence commerciale complète dédiée aux commerçants, PME et entrepreneurs du Mali. Elle permet d'importer des données de ventes, d'analyser les performances en temps réel, de suivre les stocks, de définir des objectifs commerciaux et d'obtenir des analyses avancées par IA.
 
 ---
 
-### ⚙️ Technologies utilisées
+## 📑 Table des matières
 
-* Python
-* Streamlit
-* Pandas
-* Plotly
-* Groq API (LLM IA)
-* Excel / CSV
-
----
-
-### 📦 Installation
-
-```bash
-pip install streamlit pandas plotly groq openpyxl xlsxwriter
-```
+1. [Présentation](#-présentation)
+2. [Fonctionnalités](#-fonctionnalités)
+3. [Installation](#-installation)
+4. [Démarrage rapide](#-démarrage-rapide)
+5. [Format des données](#-format-des-données)
+6. [Configuration IA](#-configuration-ia)
+7. [Structure du projet](#-structure-du-projet)
+8. [Base de données](#-base-de-données)
+9. [Personnalisation](#-personnalisation)
+10. [Dépannage](#-dépannage)
+11. [Déploiement](#-déploiement)
+12. [Licence](#-licence)
 
 ---
 
-### ▶️ Lancement
+## 🎯 Présentation
 
-```bash
-streamlit run app.py
-```
+TradeSahel est né d'un besoin réel : **aider les commerçants maliens à mieux gérer leurs ventes et prendre des décisions éclairées**.
 
----
+### Problèmes résolus
+- ❌ Difficulté à suivre les performances commerciales
+- ❌ Manque de visibilité sur les stocks
+- ❌ Absence d'analyses prédictives
+- ❌ Perte de temps sur les rapports manuels
 
-### 🔐 Comptes de démonstration
-
-| Utilisateur | Mot de passe |
-| ----------- | ------------ |
-| admin       | admin123     |
-| mali1       | mali2025     |
-
----
-
-### 📊 Fonctionnalités principales
-
-#### 🔑 Authentification
-
-* Connexion utilisateur
-* Création de compte
-* Réinitialisation de mot de passe
-
-#### 📂 Import de données
-
-* CSV / Excel
-* Multi points de vente
-
-#### 📊 Analyse
-
-* KPI (CA, panier moyen, transactions)
-* Graphiques dynamiques
-* Top produits
-* Répartition par secteur
-
-#### 🏪 Multi-points
-
-* Comparaison entre boutiques
-
-#### ⚖️ Comparaison temporelle
-
-* Analyse entre périodes
-* Évolution du chiffre d’affaires
-
-#### 🎯 Objectifs
-
-* Définition d’objectifs par secteur
-* Suivi des performances
-
-#### 🔮 IA (Groq)
-
-* Prévisions de ventes
-* Recommandations business
-
-#### 🚨 Alertes automatiques
-
-* Baisse ou hausse du CA
-* Secteurs faibles
-* Produits performants
-
-#### 📥 Export
-
-* Excel complet
-* CSV filtré
+### Solutions apportées
+- ✅ Tableau de bord en temps réel
+- ✅ Gestion automatisée des stocks
+- ✅ Prévisions IA adaptées au contexte malien
+- ✅ Export PDF/Excel professionnel
 
 ---
 
-### 🧠 IA utilisée
+## ✨ Fonctionnalités
 
-* Modèle : Llama 3.3 (Groq)
-* Analyse des tendances commerciales
-* Génération de recommandations adaptées au marché malien
+### 📊 13 onglets disponibles
 
----
+| # | Onglet | Fonctionnalités |
+|---|--------|-----------------|
+| 1 | 📊 Vue générale | KPIs, graphiques, top produits, évolution |
+| 2 | 🏬 Multi-boutiques | Comparaison entre plusieurs fichiers/boutiques |
+| 3 | ⚖️ Comparaison | Deux périodes ou plusieurs produits |
+| 4 | 🎯 Objectifs | Définition et suivi des objectifs |
+| 5 | 📦 Stocks | Gestion des niveaux de stock |
+| 6 | 🔮 Prévisions IA | Projections des ventes (LLaMA 3.3) |
+| 7 | 💬 Chat IA | Assistant conversationnel |
+| 8 | 🧠 Rapport IA | Analyse commerciale complète |
+| 9 | 🚨 Alertes | Détection automatique des anomalies |
+| 10 | 📜 Historique | Rapports IA sauvegardés |
+| 11 | 💬 Notes | Prise de notes personnelles |
+| 12 | 🗄️ Données | Gestion des fichiers importés |
+| 13 | 📥 Export | PDF, Excel, CSV |
 
-### 📁 Structure du projet
+### 📈 KPIs calculés
 
-```
-TradeSahel/
-│── app.py
-│── README.md
-│── requirements.txt
-```
-
----
-
-## 📘 Cahier de charges
-
-### 1. 📌 Contexte
-
-Les commerçants maliens manquent souvent d’outils digitaux simples pour analyser leurs ventes et prendre des décisions stratégiques.
-
----
-
-### 2. 🎯 Objectifs du projet
-
-* Digitaliser le suivi commercial
-* Fournir des analyses simples et visuelles
-* Aider à la prise de décision
-* Introduire l’IA dans le commerce local
+| Métrique | Formule |
+|----------|---------|
+| CA Nominal | Σ(quantité × prix_unitaire) |
+| CA Réel | CA_nominal / 1.02 (TVA Mali 2%) |
+| Panier Moyen | CA_nominal / nb_transactions |
+| Marge Brute | Σ(CA - (quantité × prix_achat)) |
+| Taux de Marge | (marge_brute / CA) × 100 |
 
 ---
 
-### 3. 👥 Utilisateurs cibles
+## 💻 Installation
 
-* Commerçants
-* Boutiques locales
-* PME
-* Distributeurs
+### Prérequis
 
----
+| Configuration | Minimum |
+|---------------|---------|
+| Système | Windows 10/11, macOS 11+, Linux |
+| RAM | 2 Go |
+| Stockage | 500 Mo |
+| Python | 3.8 ou supérieur |
 
-### 4. 🧩 Fonctionnalités détaillées
+### Étape 1 : Installer Python
 
-#### 4.1 Authentification
+**Windows :**
+- Téléchargez sur [python.org](https://python.org/downloads)
+- **Cochez "Add Python to PATH"**
+- Vérifiez : `python --version`
 
-* Login sécurisé
-* Gestion des comptes en session
-
-#### 4.2 Gestion des données
-
-* Import CSV / Excel
-* Nettoyage automatique
-* Calcul du chiffre d’affaires
-
-#### 4.3 Analyse des performances
-
-* CA nominal et réel
-* Panier moyen
-* Quantité vendue
-* Nombre de transactions
-
-#### 4.4 Visualisation
-
-* Graphiques interactifs
-* Courbes d’évolution
-* Diagrammes circulaires
-
-#### 4.5 Comparaison
-
-* Multi-points de vente
-* Comparaison temporelle
-
-#### 4.6 Objectifs
-
-* Saisie d’objectifs
-* Indicateurs de performance
-* Jauges visuelles
-
-#### 4.7 Intelligence artificielle
-
-* Prévisions de ventes
-* Analyse des tendances
-* Recommandations stratégiques
-
-#### 4.8 Alertes
-
-* Détection automatique d’anomalies
-* Notifications visuelles
-
-#### 4.9 Export
-
-* Génération de fichiers Excel
-* Export CSV
-
----
-
-### 5. ⚙️ Contraintes techniques
-
-* Application web légère (Streamlit)
-* Fonctionnement offline (hors IA)
-* Interface simple et intuitive
-
----
-
-### 6. 🔐 Sécurité
-
-* Authentification basique (session)
-* Données non persistées (actuellement)
-* API Key utilisateur pour IA
-
----
-
-### 7. 🚀 Évolutions futures
-
-* Base de données (PostgreSQL)
-* Authentification sécurisée (JWT)
-* Dashboard mobile
-* Notifications WhatsApp
-* Multi-pays (Afrique de l’Ouest)
-
----
-
-### 8. 📊 Indicateurs de succès
-
-* Nombre d’utilisateurs
-* Fréquence d’utilisation
-* Amélioration des ventes
-
----
-
-### 9. 📅 Planning estimatif
-
-| Phase         | Durée        |
-| ------------- | ------------ |
-| Conception    | 1 semaine    |
-| Développement | 2-3 semaines |
-| Tests         | 1 semaine    |
-| Déploiement   | 1 semaine    |
-
----
-
-### 10. 💡 Valeur ajoutée
-
-* Simplicité d’utilisation
-* Adapté au contexte africain
-* Intégration IA
-* Multi-boutiques
-
----
-
-## 🇲🇱 TradeSahel
-
-**Intelligence Commerciale pour le Mali et l’Afrique**

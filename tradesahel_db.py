@@ -87,10 +87,19 @@ def init_db():
             priorite TEXT    DEFAULT 'info'
         );
 
+        CREATE TABLE IF NOT EXISTS historique_chat (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT    NOT NULL,
+            date     TEXT    NOT NULL,
+            role     TEXT    NOT NULL,
+            message  TEXT    NOT NULL
+        );
+
         CREATE INDEX IF NOT EXISTS idx_ventes_date ON ventes(date);
         CREATE INDEX IF NOT EXISTS idx_ventes_produit ON ventes(produit);
         CREATE INDEX IF NOT EXISTS idx_ventes_fichier ON ventes(fichier_id);
         CREATE INDEX IF NOT EXISTS idx_hist_username ON historique_ia(username);
+        CREATE INDEX IF NOT EXISTS idx_chat_username ON historique_chat(username);
         """)
 
 # ══════════════════════════════════════════════════════════
@@ -124,6 +133,11 @@ def inserer_ventes(df: pd.DataFrame, fichier_id: int, nom_fichier: str):
         "chiffre_affaires": "chiffre_affaires", "marge": "marge",
         "marge_pct": "marge_pct", "stock": "stock",
     }
+    
+    # Ajouter stock par défaut si absent
+    if "stock" not in df.columns:
+        df["stock"] = 100
+    
     rows = []
     for _, r in df.iterrows():
         row = [fichier_id]
@@ -150,19 +164,17 @@ def inserer_ventes(df: pd.DataFrame, fichier_id: int, nom_fichier: str):
         )
 
 # ══════════════════════════════════════════════════════════
-# LECTURE DONNÉES - CORRIGÉE
+# LECTURE DONNÉES
 # ══════════════════════════════════════════════════════════
 def charger_ventes(username: str = None) -> pd.DataFrame:
     """Charge toutes les ventes pour un utilisateur ou toutes si username=None"""
     with get_conn() as conn:
         if username:
-            # Vérifier d'abord si l'utilisateur a des fichiers
             fichiers = conn.execute(
                 "SELECT id FROM fichiers_importes WHERE username=?", (username,)
             ).fetchall()
             
             if not fichiers:
-                print(f"DEBUG: Aucun fichier trouvé pour {username}")
                 return pd.DataFrame()
             
             query = """
@@ -172,10 +184,8 @@ def charger_ventes(username: str = None) -> pd.DataFrame:
             ORDER BY v.date
             """
             df = pd.read_sql_query(query, conn, params=(username,))
-            print(f"DEBUG: Chargé {len(df)} lignes pour {username}")
         else:
             df = pd.read_sql_query("SELECT * FROM ventes ORDER BY date", conn)
-            print(f"DEBUG: Chargé {len(df)} lignes total")
 
     if df.empty:
         return df
@@ -250,7 +260,7 @@ def charger_objectifs(username: str, type_obj: str = "secteur") -> dict:
     return {r["entite"]: r["valeur"] for r in rows}
 
 # ══════════════════════════════════════════════════════════
-# NOTES
+# NOTES (avec modification et suppression)
 # ══════════════════════════════════════════════════════════
 def ajouter_note(username: str, contenu: str, priorite: str = "info"):
     with get_conn() as conn:
@@ -269,6 +279,44 @@ def charger_notes(username: str) -> list[dict]:
 def supprimer_note(note_id: int):
     with get_conn() as conn:
         conn.execute("DELETE FROM notes WHERE id=?", (note_id,))
+
+def modifier_note(note_id: int, nouveau_contenu: str, nouvelle_priorite: str):
+    """Modifie une note existante"""
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE notes SET contenu = ?, priorite = ?, date = ? WHERE id = ?",
+            (nouveau_contenu, nouvelle_priorite, datetime.now().strftime("%d/%m/%Y %H:%M"), note_id)
+        )
+
+# ══════════════════════════════════════════════════════════
+# HISTORIQUE CHAT IA
+# ══════════════════════════════════════════════════════════
+def sauvegarder_message_chat(username: str, role: str, message: str):
+    """Sauvegarde un message du chat dans l'historique"""
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO historique_chat (username, date, role, message) VALUES (?, ?, ?, ?)",
+            (username, datetime.now().strftime("%d/%m/%Y %H:%M"), role, message)
+        )
+
+def charger_historique_chat(username: str) -> list[dict]:
+    """Charge l'historique des conversations"""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM historique_chat WHERE username=? ORDER BY date ASC LIMIT 200",
+            (username,)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+def supprimer_historique_chat(username: str):
+    """Supprime tout l'historique de chat d'un utilisateur"""
+    with get_conn() as conn:
+        conn.execute("DELETE FROM historique_chat WHERE username=?", (username,))
+
+def supprimer_message_chat(message_id: int):
+    """Supprime un message spécifique"""
+    with get_conn() as conn:
+        conn.execute("DELETE FROM historique_chat WHERE id=?", (message_id,))
 
 # ══════════════════════════════════════════════════════════
 # COMPTES
@@ -310,6 +358,12 @@ def stats_bdd(username: str) -> dict:
         nb_rapports = conn.execute(
             "SELECT COUNT(*) FROM historique_ia WHERE username=?", (username,)
         ).fetchone()[0]
+        nb_notes = conn.execute(
+            "SELECT COUNT(*) FROM notes WHERE username=?", (username,)
+        ).fetchone()[0]
+        nb_chat = conn.execute(
+            "SELECT COUNT(*) FROM historique_chat WHERE username=?", (username,)
+        ).fetchone()[0]
         derniere_import = conn.execute(
             "SELECT date_import FROM fichiers_importes WHERE username=? ORDER BY id DESC LIMIT 1",
             (username,)
@@ -318,43 +372,7 @@ def stats_bdd(username: str) -> dict:
         "nb_fichiers": nb_fichiers,
         "nb_ventes": nb_ventes,
         "nb_rapports": nb_rapports,
+        "nb_notes": nb_notes,
+        "nb_chat": nb_chat,
         "derniere_import": derniere_import[0] if derniere_import else "—"
     }
-
-# ══════════════════════════════════════════════════════════
-# DIAGNOSTIC - AJOUTÉ
-# ══════════════════════════════════════════════════════════
-def diagnostique_base(username: str = None):
-    """Fonction de diagnostic pour vérifier les données"""
-    with get_conn() as conn:
-        print("\n=== DIAGNOSTIC BASE DE DONNEES ===")
-        
-        # Tous les fichiers
-        fichiers = conn.execute("SELECT * FROM fichiers_importes").fetchall()
-        print(f"Total fichiers: {len(fichiers)}")
-        for f in fichiers:
-            print(f"  - {dict(f)}")
-        
-        # Toutes les ventes
-        nb_ventes = conn.execute("SELECT COUNT(*) FROM ventes").fetchone()[0]
-        print(f"Total ventes: {nb_ventes}")
-        
-        if nb_ventes > 0:
-            sample = conn.execute("SELECT * FROM ventes LIMIT 3").fetchall()
-            print("Echantillon ventes:")
-            for s in sample:
-                print(f"  - {dict(s)}")
-        
-        if username:
-            user_fichiers = conn.execute(
-                "SELECT * FROM fichiers_importes WHERE username=?", (username,)
-            ).fetchall()
-            print(f"\nFichiers pour {username}: {len(user_fichiers)}")
-            
-            user_ventes = conn.execute(
-                """SELECT COUNT(*) FROM ventes v
-                   JOIN fichiers_importes f ON v.fichier_id=f.id
-                   WHERE f.username=?""",
-                (username,)
-            ).fetchone()[0]
-            print(f"Ventes pour {username}: {user_ventes}")
